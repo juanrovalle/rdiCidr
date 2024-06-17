@@ -22,14 +22,13 @@ jobs:
         run: npm run test
       - name: Run build
         run: npm run build
-      
+
       - name: Aws Connection
         uses: aws-actions/configure-aws-credentials@v1
         with:
-            aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-            aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-            aws-region: ${{vars.AWS_REGION}}
-
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-region: ${{vars.AWS_REGION}}
 
       - name: configure terraform
         uses: hashicorp/setup-terraform@v1
@@ -40,13 +39,13 @@ jobs:
       - name: Terraform
         run: terrafom plan
       - name: terrafom apply
-        if: ${{github.ref == 'refs/head/prod'  && github.event_name= 'push'}}
+        if: ${{github.ref == 'refs/heads/prod' && github.event_name == 'push'}}
         run: terraform apply
 
       - name: terrafom apply stage
-        if: ${{github.ref == 'refs/head/stage'  && github.event_name= 'push'}}
+        if: ${{github.ref == 'refs/head/stage' && github.event_name== 'push'}}
         run: terraform apply -var-file="enviroments/stage.tfvars"
 
       - name: terrafom apply
-        if: ${{github.ref == 'refs/head/devel'  && github.event_name= 'push'}}
+        if: ${{github.ref == 'refs/head/devel' && github.event_name== 'push'}}
         run: terraform apply -var-file="enviroments/devel.tfvars"
