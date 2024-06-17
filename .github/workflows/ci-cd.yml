@@ -1,0 +1,70 @@
+name: CI-CD Actions
+
+on:
+  push:
+    branches: [prod, stage, devel]
+  pull_request:
+    branches: [prod, stage, devel]
+    types: [opened, synchronize]
+
+jobs:
+  CI-CD:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 14
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run Prettier
+        run: npm run prettier
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build project
+        run: npm run build
+
+      - name: Configure AWS Credentials
+        if: ${{ github.event_name == 'push' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Set up Terraform
+        if: ${{ github.event_name == 'push' }}
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.11
+      - name: List files for debugging
+        if: ${{ github.event_name == 'push' }}
+        run: ls -la
+      - name: Initialize Terraform
+        if: ${{ github.event_name == 'push' }}
+        run: terraform init
+
+      - name: Terraform Plan
+        if: ${{ github.event_name == 'push' }}
+        run: terraform plan
+
+      - name: Apply Terraform to Prod
+        if: ${{ github.ref == 'refs/heads/prod' && github.event_name == 'push' }}
+        run: terraform apply -auto-approve
+
+      - name: Apply Terraform to Stage
+        if: ${{ github.ref == 'refs/heads/stage' && github.event_name == 'push' }}
+        run: terraform apply -var-file="environments/stage.tfvars" -auto-approve
+
+      - name: Apply Terraform to Devel
+        if: ${{ github.ref == 'refs/heads/devel' && github.event_name == 'push' }}
+        run: terraform apply -var-file="environments/devel.tfvars" -auto-approve
