@@ -3,6 +3,7 @@ on:
   push:
     branches: [prod, stage, devel]
   pull_request:
+    branches: [prod, stage, devel]
     types: [opened, synchronize]
 jobs:
   CI-CD:
