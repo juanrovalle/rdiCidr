@@ -3,8 +3,8 @@ resource "aws_s3_bucket" "bucket" {
   force_destroy = true
 }
 # file upload
-resource "aws_s3_bucket_object" "file" {
-  for_each     = fileset("${path.module}/build", "**/*.{hmtl,css,js,json,svg}")
+resource "aws_s3_object" "file" {
+  for_each     = fileset("${path.module}/build", "**/*.{html,css,js,json,svg}")
   bucket       = aws_s3_bucket.bucket.id
   key          = replace(each.value, "^build/", "")
   source       = "${path.module}/build/${each.value}"
@@ -23,8 +23,9 @@ resource "aws_s3_bucket_website_configuration" "terraform_hosting" {
 locals {
   content_types = {
     ".html" : "text/html"
-    ".css" : "text/css"
-    ".js" : "text/javacript"
+    ".css" : "text/css",
+    ".js" : "text/javacript",
+    ".svg" : "image/svg+xml",
     ".json" : "application/json"
   }
 }

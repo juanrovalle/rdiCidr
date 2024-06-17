@@ -22,31 +22,34 @@ jobs:
         run: npm run test
       - name: Run build
         run: npm run build
-      
+
       - name: Aws Connection
+        if: ${{github.event_name == 'push'}}
         uses: aws-actions/configure-aws-credentials@v1
         with:
-            aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-            aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
-            aws-region: ${{vars.AWS_REGION}}
-
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-region: us-east-1
 
       - name: configure terraform
+        if: ${{github.event_name == 'push'}}
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.0
       - name: Terraform
+        if: ${{github.event_name == 'push'}}
         run: terrafom init
       - name: Terraform
+        if: ${{github.event_name == 'push'}}
         run: terrafom plan
       - name: terrafom apply
-        if: ${{github.ref == 'refs/head/prod'  && github.event_name= 'push'}}
+        if: ${{github.ref == 'refs/heads/prod' && github.event_name == 'push'}}
         run: terraform apply
 
       - name: terrafom apply stage
-        if: ${{github.ref == 'refs/head/stage'  && github.event_name= 'push'}}
+        if: ${{github.ref == 'refs/head/stage' && github.event_name== 'push'}}
         run: terraform apply -var-file="enviroments/stage.tfvars"
 
       - name: terrafom apply
-        if: ${{github.ref == 'refs/head/devel'  && github.event_name= 'push'}}
+        if: ${{github.ref == 'refs/head/devel' && github.event_name== 'push'}}
         run: terraform apply -var-file="enviroments/devel.tfvars"
