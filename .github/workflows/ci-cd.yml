@@ -1,0 +1,21 @@
+name: CI-CD Actions
+on:
+  push:
+    branches: [prod, stage, devel]
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  CI-CD:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 14
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run prettier
+      - run: npm run test
+      - run: npm run build
