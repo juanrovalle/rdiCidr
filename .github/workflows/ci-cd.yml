@@ -37,8 +37,10 @@ jobs:
         with:
           terraform_version: 1.0.0
       - name: Terraform
+        if: ${{github.event_name == 'push'}}
         run: terrafom init
       - name: Terraform
+        if: ${{github.event_name == 'push'}}
         run: terrafom plan
       - name: terrafom apply
         if: ${{github.ref == 'refs/heads/prod' && github.event_name == 'push'}}
