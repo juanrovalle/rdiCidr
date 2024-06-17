@@ -15,9 +15,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 14
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run prettier
+      - name: npm install
+        run: npm ci
+      - name:  run lint
+        run: npm run lint
+      - name: run prettier
+        run: npm run prettier
 
       - name: Run test
         run: npm run test
