@@ -1,0 +1,1 @@
+bucket_name = "stage-fullstacklabs-demo-001"
